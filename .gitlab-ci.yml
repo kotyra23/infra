@@ -1,0 +1,30 @@
+stages:
+  - deploy
+
+.deploy:
+  stage: deploy
+  image: docker:latest
+  variables:
+    DOCKER_HOST: ""
+  script:
+    - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
+    - docker context create swarm --docker "host=tcp://${HOST},ca=${CA_FILE},cert=${CERT_FILE},key=${KEY_FILE}"
+    - docker --context swarm stack deploy -c ${FILE} --with-registry-auth shared-services
+
+deploy-to-prod:
+  extends: .deploy
+  environment:
+    name: prod
+  variables:
+    HOST: rbr.kis.im:2376
+    FILE: docker-compose.prod.yml
+  when: manual
+
+deploy-to-dev:
+  extends: .deploy
+  environment:
+    name: dev
+  variables:
+    HOST: dev.rbr.kis.im:2376
+    FILE: docker-compose.dev.yml
+  when: manual
