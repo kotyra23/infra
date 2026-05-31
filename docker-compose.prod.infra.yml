@@ -46,7 +46,7 @@ services:
     environment:
       POSTGRES_DB: api
       POSTGRES_USER: api
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpassword123}
+      POSTGRES_PASSWORD: 
     volumes:
       - postgres-data-prod:/var/lib/postgresql/data
     networks:
