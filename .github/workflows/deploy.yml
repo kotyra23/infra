@@ -1,0 +1,47 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:  # Позволяет запускать вручную
+
+jobs:
+  deploy-prod:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Docker context
+        run: |
+          mkdir -p ~/.docker
+          echo "${{ secrets.DOCKER_CA }}" | base64 -d > ~/.docker/ca.pem
+          echo "${{ secrets.DOCKER_CERT }}" | base64 -d > ~/.docker/cert.pem
+          echo "${{ secrets.DOCKER_KEY }}" | base64 -d > ~/.docker/key.pem
+          chmod 600 ~/.docker/*
+      
+      - name: Deploy to prod
+        run: |
+          docker context create prod --docker "host=tcp://rbr.kis.im:2376,ca=~/.docker/ca.pem,cert=~/.docker/cert.pem,key=~/.docker/key.pem" || true
+          docker context use prod
+          docker stack deploy -c docker-compose.prod.yml shared-services
+
+  deploy-dev:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Docker context
+        run: |
+          mkdir -p ~/.docker
+          echo "${{ secrets.DOCKER_CA }}" | base64 -d > ~/.docker/ca.pem
+          echo "${{ secrets.DOCKER_CERT }}" | base64 -d > ~/.docker/cert.pem
+          echo "${{ secrets.DOCKER_KEY }}" | base64 -d > ~/.docker/key.pem
+          chmod 600 ~/.docker/*
+      
+      - name: Deploy to dev
+        run: |
+          docker context create dev --docker "host=tcp://dev.rbr.kis.im:2376,ca=~/.docker/ca.pem,cert=~/.docker/cert.pem,key=~/.docker/key.pem" || true
+          docker context use dev
+          docker stack deploy -c docker-compose.dev.yml shared-services
