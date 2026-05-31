@@ -13,11 +13,10 @@ jobs:
       
       - name: Setup Docker Context (PROD)
         run: |
-               mkdir -p ~/.docker
-          # Используем printf для надежной записи, включая новые строки
-          printf "%s\n" "${{ secrets.DOCKER_CA_PROD }}" > ~/.docker/ca.pem
-          printf "%s\n" "${{ secrets.DOCKER_CERT_PROD }}" > ~/.docker/cert.pem
-          printf "%s\n" "${{ secrets.DOCKER_KEY_PROD }}" > ~/.docker/key.pem
+          mkdir -p ~/.docker
+          echo "${{ secrets.DOCKER_CA_PROD }}" | base64 -d > ~/.docker/ca.pem
+          echo "${{ secrets.DOCKER_CERT_PROD }}" | base64 -d > ~/.docker/cert.pem
+          echo "${{ secrets.DOCKER_KEY_PROD }}" | base64 -d > ~/.docker/key.pem
           chmod 600 ~/.docker/*
       
       - name: Deploy to Prod
@@ -34,10 +33,9 @@ jobs:
       - name: Setup Docker Context (DEV)
         run: |
           mkdir -p ~/.docker
-          # Используем printf для надежной записи, включая новые строки
-          printf "%s\n" "${{ secrets.DOCKER_CA_DEV }}" > ~/.docker/ca.pem
-          printf "%s\n" "${{ secrets.DOCKER_CERT_DEV }}" > ~/.docker/cert.pem
-          printf "%s\n" "${{ secrets.DOCKER_KEY_DEV }}" > ~/.docker/key.pem
+          echo "${{ secrets.DOCKER_CA_DEV }}" | base64 -d > ~/.docker/ca.pem
+          echo "${{ secrets.DOCKER_CERT_DEV }}" | base64 -d > ~/.docker/cert.pem
+          echo "${{ secrets.DOCKER_KEY_DEV }}" | base64 -d > ~/.docker/key.pem
           chmod 600 ~/.docker/*
       
       - name: Deploy to Dev
