@@ -4,6 +4,8 @@ stages:
 .deploy:
   stage: deploy
   image: docker:latest
+  tags:
+    - my-runner
   variables:
     DOCKER_HOST: ""
   script:
