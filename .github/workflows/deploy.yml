@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy-prod:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
       
@@ -27,7 +27,7 @@ jobs:
           docker stack deploy -c docker-compose.prod.infra.yml shared-services-prod
 
   deploy-dev:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
       
