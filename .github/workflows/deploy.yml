@@ -23,22 +23,19 @@ jobs:
         run: |
           docker context create prod --docker "host=tcp://172.16.170.139:2376,ca=$HOME/.docker/ca.pem,cert=$HOME/.docker/cert.pem,key=$HOME/.docker/key.pem" || true
           docker context use prod
-          # ИСПРАВЛЕНО ИМЯ ФАЙЛА: добавлено .infra
           docker stack deploy -c docker-compose.prod.infra.yml shared-services-prod
 
-  deploy-dev:
+  deploy-dev:                    # ← 2 пробела!
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
       
-     - name: Setup Docker Context (DEV)
+      - name: Setup Docker Context (DEV)
         run: |
-          # Skip TLS verification for DEV
-          echo "DEV context will use skipTLSVerify"      
-     
-     -  name: Deploy to Dev
+          echo "DEV context will use skipTLSVerify"
+      
+      - name: Deploy to Dev
         run: |
-          # Используем skipTLSVerify для DEV
           docker context create dev --docker "host=tcp://172.16.170.138:2376,skipTLSVerify=true" || true
           docker context use dev
           docker stack deploy -c docker-compose.dev.infra.yml shared-services-dev
