@@ -25,20 +25,22 @@ jobs:
           docker context use prod
           docker stack deploy -c docker-compose.prod.infra.yml shared-services-prod
 
-  deploy-dev:                    # ← 2 пробела!
+  deploy-dev:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
       
       - name: Setup Docker Context (DEV)
         run: |
-          echo "DEV context will use skipTLSVerify"
+          mkdir -p $HOME/.docker
+          echo "${{ secrets.DOCKER_CA_DEV }}" | base64 -d > $HOME/.docker/ca.pem
+          echo "${{ secrets.DOCKER_CERT_DEV }}" | base64 -d > $HOME/.docker/cert.pem
+          echo "${{ secrets.DOCKER_KEY_DEV }}" | base64 -d > $HOME/.docker/key.pem
+          chmod 600 $HOME/.docker/*
       
       - name: Deploy to Dev
         run: |
-          # Удаляем старый контекст (если есть)
           docker context rm dev --force || true
-          # Создаем новый контекст с отключенной проверкой TLS
-          docker context create dev --docker "host=tcp://172.16.170.138:2376,skipTLSVerify=true"
+          docker context create dev --docker "host=tcp://172.16.170.138:2376,ca=$HOME/.docker/ca.pem,cert=$HOME/.docker/cert.pem,key=$HOME/.docker/key.pem"
           docker context use dev
           docker stack deploy -c docker-compose.dev.infra.yml shared-services-dev
