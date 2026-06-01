@@ -36,6 +36,9 @@ jobs:
       
       - name: Deploy to Dev
         run: |
-          docker context create dev --docker "host=tcp://172.16.170.138:2376,skipTLSVerify=true" || true
+          # Удаляем старый контекст (если есть)
+          docker context rm dev --force || true
+          # Создаем новый контекст с отключенной проверкой TLS
+          docker context create dev --docker "host=tcp://172.16.170.138:2376,skipTLSVerify=true"
           docker context use dev
           docker stack deploy -c docker-compose.dev.infra.yml shared-services-dev
